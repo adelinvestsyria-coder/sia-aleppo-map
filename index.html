@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>عقارات أملاك الدولة - هيئة الاستثمار السورية</title>
   
   <!-- Leaflet CSS -->
@@ -25,7 +25,6 @@
       --text-white: #ffffff;
       --bg-card: #ffffff;
       --border-color: #e2e8f0;
-      /* ألوان التظليل للمضلعات */
       --poly-fill: #14532d;   /* أخضر داكن */
       --poly-stroke: #f97316; /* برتقالي */
     }
@@ -35,34 +34,37 @@
 
     /* --- الترويسة الرئيسية --- */
     header {
-      height: 70px;
+      min-height: 70px;
       background-color: var(--bg-primary);
       color: var(--text-white);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 25px;
+      padding: 10px 20px;
       border-bottom: 3px solid var(--accent-gold);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 2000;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    .brand-logo-text { font-size: 18px; font-weight: bold; color: var(--accent-gold); }
-    .brand-sub { font-size: 13px; color: #cbd5e1; margin-top: 2px; }
+    .brand-logo-text { font-size: 17px; font-weight: bold; color: var(--accent-gold); }
+    .brand-sub { font-size: 12px; color: #cbd5e1; margin-top: 2px; }
     
-    .nav-tabs { display: flex; gap: 10px; align-items: center; }
+    .nav-tabs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .nav-btn {
-      padding: 8px 16px;
+      padding: 7px 14px;
       border: 1px solid var(--accent-gold);
       background: transparent;
       color: var(--text-white);
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
+      font-size: 13px;
       transition: all 0.2s ease;
     }
     .nav-btn.active, .nav-btn:hover { background: var(--accent-gold); color: var(--bg-primary); }
-    .user-badge { background: rgba(185, 167, 121, 0.2); border: 1px solid var(--accent-gold); padding: 5px 12px; border-radius: 20px; font-size: 12px; color: var(--accent-gold); }
-    .btn-logout { background: #ef4444; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 10px; }
+    .user-badge { background: rgba(185, 167, 121, 0.2); border: 1px solid var(--accent-gold); padding: 5px 10px; border-radius: 20px; font-size: 11px; color: var(--accent-gold); }
+    .btn-logout { background: #ef4444; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
     /* --- شاشة تسجيل الدخول --- */
     #login-overlay {
@@ -71,18 +73,20 @@
       background: rgba(0, 38, 35, 0.95);
       display: flex; justify-content: center; align-items: center;
       z-index: 9999;
+      padding: 15px;
     }
     .login-card {
       background: var(--text-white);
-      width: 420px;
-      padding: 35px;
+      width: 100%;
+      max-width: 420px;
+      padding: 30px 25px;
       border-radius: 12px;
       border-top: 5px solid var(--accent-gold);
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
       text-align: center;
     }
-    .login-card h2 { color: var(--bg-primary); font-size: 20px; margin-bottom: 5px; }
-    .login-card p { color: var(--accent-gold); font-weight: bold; margin-bottom: 25px; }
+    .login-card h2 { color: var(--bg-primary); font-size: 18px; margin-bottom: 5px; }
+    .login-card p { color: var(--accent-gold); font-weight: bold; margin-bottom: 20px; font-size: 14px; }
     
     .password-wrapper { display: flex; gap: 5px; position: relative; }
     .btn-toggle-pass {
@@ -95,7 +99,7 @@
     .app-page.active { display: flex; }
 
     .sidebar {
-      width: 440px;
+      width: 420px;
       background: var(--bg-card);
       border-left: 1px solid var(--border-color);
       display: flex;
@@ -104,7 +108,7 @@
       box-shadow: -2px 0 10px rgba(0,0,0,0.05);
       overflow-y: auto;
     }
-    .sidebar-header { padding: 16px; background: var(--bg-primary); color: var(--accent-gold); font-size: 15px; font-weight: bold; }
+    .sidebar-header { padding: 14px 16px; background: var(--bg-primary); color: var(--accent-gold); font-size: 14px; font-weight: bold; }
     
     .form-grid { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .form-group { display: flex; flex-direction: column; }
@@ -116,19 +120,28 @@
     .form-control:focus { border-color: var(--accent-gold); }
     
     .btn-action {
-      background: var(--bg-primary); color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;
+      background: var(--bg-primary); color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; font-size: 13px;
     }
     .btn-action:hover { background: var(--accent-gold); color: var(--bg-primary); }
 
     /* الخريطة */
-    .map-container { flex: 1; height: 100%; }
+    .map-container { flex: 1; height: 100%; min-height: 250px; }
 
     /* بطاقة التفاصيل */
     .site-detail-card { background: white; border-radius: 8px; border: 1px solid var(--border-color); margin: 15px; padding: 15px; }
-    .site-detail-card h3 { color: var(--bg-primary); font-size: 16px; border-bottom: 2px solid var(--accent-gold); padding-bottom: 6px; margin-bottom: 12px; }
-    .detail-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #f1f5f9; font-size: 12.5px; }
+    .site-detail-card h3 { color: var(--bg-primary); font-size: 15px; border-bottom: 2px solid var(--accent-gold); padding-bottom: 6px; margin-bottom: 12px; }
+    .detail-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #f1f5f9; font-size: 12px; }
     .detail-key { font-weight: bold; color: #64748b; }
     .detail-val { color: var(--bg-primary); font-weight: 600; }
+
+    /* أزرار خرائط جوجل والواتساب */
+    .btn-gmaps {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: #4285F4; color: white; text-decoration: none; padding: 10px;
+      border-radius: 6px; font-weight: bold; font-size: 12.5px; transition: 0.2s;
+      box-shadow: 0 2px 5px rgba(66, 133, 244, 0.3);
+    }
+    .btn-gmaps:hover { background: #2b72e2; }
 
     /* عناصر الفرز والبحث */
     .filter-box { padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid var(--border-color); }
@@ -139,12 +152,76 @@
     }
     .saved-item:hover { border-color: var(--accent-gold); background: #fdfbf7; }
     .saved-item-header { display: flex; justify-content: space-between; font-weight: bold; color: var(--bg-primary); margin-bottom: 6px; }
-    .action-btns { display: flex; gap: 4px; margin-top: 6px; }
+    .action-btns { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
     .btn-wa { background: #25d366; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     .btn-link { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     .btn-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
+    /* --- تذييل حقوق الملكية والنسخة --- */
+    .app-footer {
+      background-color: var(--bg-primary);
+      color: #94a3b8;
+      font-size: 11px;
+      text-align: center;
+      padding: 12px 15px;
+      border-top: 2px solid var(--accent-gold);
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      line-height: 1.4;
+    }
+    .footer-badge {
+      display: inline-block;
+      background: rgba(185, 167, 121, 0.15);
+      color: var(--accent-gold);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: bold;
+      align-self: center;
+      margin-bottom: 2px;
+    }
+    .footer-rights { color: #f1f5f9; font-weight: 500; }
+    .footer-version { color: var(--accent-gold); font-family: monospace; direction: ltr; font-size: 11px; font-weight: bold; }
+
     #investor-view-container { display: none; width: 100vw; height: 100vh; flex-direction: column; }
+
+    /* --- تحسينات الشاشات الصغيرة والهواتف الذكية (Responsive CSS) --- */
+    @media (max-width: 768px) {
+      header {
+        padding: 8px 12px;
+        justify-content: center;
+        text-align: center;
+      }
+      .brand-logo-text { font-size: 15px; width: 100%; }
+      .brand-sub { font-size: 11px; width: 100%; }
+      .nav-tabs { width: 100%; justify-content: center; margin-top: 4px; }
+      .nav-btn { padding: 5px 10px; font-size: 11.5px; }
+
+      .app-page { flex-direction: column-reverse; }
+      .sidebar {
+        width: 100%;
+        height: 50vh;
+        border-left: none;
+        border-top: 2px solid var(--accent-gold);
+      }
+      .map-container {
+        width: 100%;
+        height: 50vh;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+
+      #investor-view-container .main-wrapper {
+        flex-direction: column-reverse;
+      }
+    }
   </style>
 </head>
 <body>
@@ -170,7 +247,7 @@
         </div>
 
         <div id="login-error" style="color: #ef4444; font-size: 12px; margin: 8px 0; display: none;">اسم المستخدم أو كلمة السر غير صحيحة، يرجى المحاولة مجدداً.</div>
-        <button type="submit" class="btn-action" style="margin-top: 15px;">تسجيل الدخول</button>
+        <button type="submit" class="btn-action" style="margin-top: 10px;">تسجيل الدخول</button>
       </form>
     </div>
   </div>
@@ -227,17 +304,22 @@
           <input type="text" id="search-admin" class="form-control" onkeyup="renderAdminList()" placeholder="🔍 بحث باسم العقار، الرقم، أو المنطقة...">
         </div>
         <div style="padding: 10px 15px;" id="admin-sites-list"></div>
+
+        <footer class="app-footer">
+          <span class="footer-badge">النسخة التجريبية</span>
+          <div class="footer-rights">جميع حقوق الملكية محفوظة لهيئة الاستثمار السورية - فرع حلب</div>
+          <div class="footer-version">v1.0.26.8.7</div>
+        </footer>
       </div>
       
       <div id="map-entry" class="map-container"></div>
     </div>
 
-    <!-- صفحة استعراض كافة العقارات (مع الفرز حسب المنطقة العقارية) -->
+    <!-- صفحة استعراض كافة العقارات -->
     <div id="page-viewer" class="app-page">
       <div class="sidebar">
         <div class="sidebar-header">العقارات واللوحة التفصيلية</div>
         
-        <!-- أدوات التصفية والفرز بالمنطقة العقارية -->
         <div class="filter-box">
           <label class="filter-label">🏘️ فرز وتصفية حسب المنطقة العقارية:</label>
           <select id="filter-zone" class="form-control" style="margin-bottom: 8px; font-weight: bold; color: var(--bg-primary);" onchange="onZoneFilterChange()">
@@ -251,9 +333,15 @@
         
         <div id="viewer-details-panel">
           <div class="site-detail-card">
-            <p style="color: #64748b; font-size: 13px; text-align: center;">حدد المنطقة العقارية أو انقر على أي عقار من الخريطة للتقريب واستعراض خصائصه بالكامل.</p>
+            <p style="color: #64748b; font-size: 12.5px; text-align: center;">حدد المنطقة العقارية أو انقر على أي عقار من الخريطة للتقريب واستعراض خصائصه بالكامل.</p>
           </div>
         </div>
+
+        <footer class="app-footer">
+          <span class="footer-badge">النسخة التجريبية</span>
+          <div class="footer-rights">جميع حقوق الملكية محفوظة لهيئة الاستثمار السورية - فرع حلب</div>
+          <div class="footer-version">v1.0.26.8.7</div>
+        </footer>
       </div>
       
       <div id="map-viewer" class="map-container"></div>
@@ -261,18 +349,24 @@
 
   </div>
 
-  <!-- ==================== 4. شاشة عرض المستثمر ==================== -->
+  <!-- ==================== 4. شاشة عرض المستثمر (موقع منفرد وخطي) ==================== -->
   <div id="investor-view-container">
     <header>
       <div>
         <div class="brand-logo-text">هيئة الاستثمار السورية - فرع حلب</div>
-        <div class="brand-sub">عقارات أملاك الدولة - بطاقة عرض موقع استثماري</div>
+        <div class="brand-sub">عقارات أملاك الدولة - بطاقة موقع استثماري</div>
       </div>
     </header>
     <div class="main-wrapper">
       <div class="sidebar">
         <div class="sidebar-header">الخصائص الاستثمارية للموقع</div>
         <div id="investor-details-panel"></div>
+
+        <footer class="app-footer">
+          <span class="footer-badge">النسخة التجريبية</span>
+          <div class="footer-rights">جميع حقوق الملكية محفوظة لهيئة الاستثمار السورية - فرع حلب</div>
+          <div class="footer-version">v1.0.26.8.7</div>
+        </footer>
       </div>
       <div id="map-investor" class="map-container"></div>
     </div>
@@ -292,18 +386,25 @@
       "SIA-ALP-004": { pass: "SIA004Aleppo", role: "viewer" }
     };
 
-    // نمط ألوان المضلعات الجغرافية (أخضر داكن وحدود برتقالية بحدود 50% شفافية)
     const KMZ_STYLE = {
-      color: '#f97316',       // برتقالي
-      fillColor: '#14532d',   // أخضر داكن
+      color: '#f97316',       
+      fillColor: '#14532d',   
       weight: 3,
-      fillOpacity: 0.5        // شفافية 50%
+      fillOpacity: 0.5        
     };
 
     let currentUser = null;
     let allProperties = JSON.parse(localStorage.getItem('sia_aleppo_properties') || '[]');
     let currentGeoJSON = null;
     let tempLayer = null;
+
+    // دوال ترميز وتفكيك السلاسل النصية لإنشاء الروابط المشفرة (UTF-8 Base64)
+    function utf8_to_b64(str) {
+      return window.btoa(unescape(encodeURIComponent(str)));
+    }
+    function b64_to_utf8(str) {
+      return decodeURIComponent(escape(window.atob(str)));
+    }
 
     function getGoogleHybridTile() {
       return L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
@@ -321,13 +422,29 @@
 
     window.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
+      const encodedData = urlParams.get('data');
       const shareId = urlParams.get('siteId');
 
-      if (shareId) {
+      if (encodedData) {
+        // المستثمر يفتح الرابط الحامل للبيانات المشفرة بالكامل
+        try {
+          const jsonStr = b64_to_utf8(encodedData);
+          const sharedProperty = JSON.parse(jsonStr);
+
+          document.getElementById('login-overlay').style.display = 'none';
+          document.getElementById('app-wrapper').style.display = 'none';
+          document.getElementById('investor-view-container').style.display = 'flex';
+          initInvestorViewFromData(sharedProperty);
+        } catch(err) {
+          alert('تعذر فتح الموقع المشارك، الرابط غير مكتمل أو تالف.');
+        }
+      } else if (shareId) {
+        // دعم الروابط القديمة محلياً
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('app-wrapper').style.display = 'none';
         document.getElementById('investor-view-container').style.display = 'flex';
-        initInvestorView(shareId);
+        const p = allProperties.find(item => item.id === shareId);
+        if (p) initInvestorViewFromData(p);
       } else {
         const savedUser = sessionStorage.getItem('sia_logged_user');
         if (savedUser && ACCOUNTS[savedUser]) {
@@ -369,6 +486,11 @@
       renderAdminList();
       renderViewerMap();
       renderViewerSearchList();
+      
+      setTimeout(() => {
+        mapEntry.invalidateSize();
+        mapViewer.invalidateSize();
+      }, 300);
     }
 
     function logout() {
@@ -383,14 +505,14 @@
       if (tab === 'entry') {
         document.getElementById('tab-entry-btn').classList.add('active');
         document.getElementById('page-entry').classList.add('active');
-        mapEntry.invalidateSize();
+        setTimeout(() => mapEntry.invalidateSize(), 200);
       } else {
         document.getElementById('tab-viewer-btn').classList.add('active');
         document.getElementById('page-viewer').classList.add('active');
-        mapViewer.invalidateSize();
         populateZoneDropdown();
         renderViewerMap();
         renderViewerSearchList();
+        setTimeout(() => mapViewer.invalidateSize(), 200);
       }
     }
 
@@ -424,7 +546,6 @@
       }
     });
 
-    // --- حفظ البيانات وقائمة المناطق ---
     function savePropertyData() {
       if (!currentGeoJSON) { alert("يرجى اختيار وتفكيك ملف KMZ الخاص بالموقع أولاً."); return; }
       
@@ -465,7 +586,6 @@
       alert("تم حفظ العقار بنجاح في قاعدة البيانات وتحديث قائمة المناطق!");
     }
 
-    // --- ملء القائمة المنسدلة بالمناطق العقارية المتوفرة فريداً ---
     function populateZoneDropdown() {
       const select = document.getElementById('filter-zone');
       if (!select) return;
@@ -473,7 +593,6 @@
       const currentSelected = select.value;
       select.innerHTML = '<option value="">جميع المناطق العقارية (الكل)</option>';
 
-      // تجميع المناطق العقارية المتفرقة وبدون تكرار
       const uniqueZones = [...new Set(allProperties.map(p => (p.f4 || '').trim()).filter(z => z && z !== '-'))];
       uniqueZones.sort().forEach(zone => {
         const opt = document.createElement('option');
@@ -484,24 +603,38 @@
       });
     }
 
-    // --- حدث تغيير خيار التصفية بالمنطقة ---
     function onZoneFilterChange() {
       renderViewerMap();
       renderViewerSearchList();
     }
 
+    // بناء الرابط المباشر المشفر الذي يحمل كافة بيانات العقار
+    function generateShareableUrl(p) {
+      const payload = {
+        f1: p.f1, f2: p.f2, f3: p.f3, f4: p.f4,
+        f5: p.f5, f6: p.f6, f7: p.f7, f8: p.f8,
+        f9: p.f9, f10: p.f10, f11: p.f11, f12: p.f12,
+        centerCoords: p.centerCoords,
+        geoJSON: p.geoJSON
+      };
+      const encoded = utf8_to_b64(JSON.stringify(payload));
+      return window.location.origin + window.location.pathname + '?data=' + encodeURIComponent(encoded);
+    }
+
     function shareWhatsApp(id) {
       const p = allProperties.find(item => item.id === id);
       if (!p) return;
-      const shareUrl = window.location.origin + window.location.pathname + '?siteId=' + id;
+      const shareUrl = generateShareableUrl(p);
       const text = `*هيئة الاستثمار السورية - فرع حلب*\n*عقارات أملاك الدولة*\n\n📍 *الموقع:* ${p.f1}\n🔢 *رقم العقار:* ${p.f3}\n🗺️ *المنطقة:* ${p.f4}\n📐 *المساحة:* ${p.f6} م²\n📌 *الإحداثيات:* ${p.centerCoords}\n\n🔗 *رابط العرض التفاعلي على الخريطة:*\n${shareUrl}`;
       window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
     }
 
     function copyShareLink(id) {
-      const url = window.location.origin + window.location.pathname + '?siteId=' + id;
-      navigator.clipboard.writeText(url);
-      alert("تم نسخ رابط العرض بنجاح!\n\n" + url);
+      const p = allProperties.find(item => item.id === id);
+      if (!p) return;
+      const shareUrl = generateShareableUrl(p);
+      navigator.clipboard.writeText(shareUrl);
+      alert("تم نسخ رابط العرض المستقل بنجاح!\nيمكنك الآن إرساله للمستثمر ليفتح عنده فوراً.");
     }
 
     function deleteProperty(id) {
@@ -531,6 +664,7 @@
     function renderAdminList() {
       const query = (document.getElementById('search-admin')?.value || '').toLowerCase();
       const c = document.getElementById('admin-sites-list');
+      if (!c) return;
       c.innerHTML = '';
 
       const filtered = allProperties.filter(p => 
@@ -557,7 +691,6 @@
       });
     }
 
-    // --- قائمة البحث المفلترة بالمنطقة والاسم ---
     function renderViewerSearchList() {
       const query = (document.getElementById('search-viewer')?.value || '').toLowerCase();
       const selectedZone = document.getElementById('filter-zone')?.value || '';
@@ -567,12 +700,10 @@
 
       let filtered = allProperties;
 
-      // 1. التصفية حسب المنطقة العقارية المحددة
       if (selectedZone) {
         filtered = filtered.filter(p => (p.f4 || '').trim() === selectedZone);
       }
 
-      // 2. التصفية حسب كلمة البحث
       if (query) {
         filtered = filtered.filter(p => 
           p.f1.toLowerCase().includes(query) || 
@@ -599,7 +730,6 @@
       });
     }
 
-    // --- رسم العقارات المفلترة على الخريطة ---
     let viewerGroup = L.layerGroup();
 
     function renderViewerMap() {
@@ -608,7 +738,6 @@
 
       const selectedZone = document.getElementById('filter-zone')?.value || '';
       
-      // اختيار العقارات التابعة للمنطقة المحددة فقط أو اختيار الجميع
       const propertiesToDisplay = selectedZone 
         ? allProperties.filter(p => (p.f4 || '').trim() === selectedZone)
         : allProperties;
@@ -629,24 +758,23 @@
       if (bounds.isValid()) mapViewer.fitBounds(bounds);
     }
 
-    function initInvestorView(siteId) {
-      const p = allProperties.find(item => item.id === siteId);
-      const container = document.getElementById('investor-details-panel');
+    // تهيئة شاشة المستثمر وتجهيز الخريطة المنفردة
+    function initInvestorViewFromData(p) {
+      showDetailsInPanel(p, 'investor-details-panel', true);
 
-      if (!p) {
-        container.innerHTML = '<div class="site-detail-card"><p style="color:#ef4444;">الموقع المطلوب غير موجود أو تم إزالته.</p></div>';
-        return;
-      }
-
-      showDetailsInPanel(p, 'investor-details-panel');
-
-      const mapInv = L.map('map-investor', { layers: [getGoogleHybridTile()] });
-      const l = L.geoJSON(p.geoJSON, { style: KMZ_STYLE }).addTo(mapInv);
-      mapInv.fitBounds(l.getBounds());
+      setTimeout(() => {
+        const mapInv = L.map('map-investor', { layers: [getGoogleHybridTile()] });
+        const l = L.geoJSON(p.geoJSON, { style: KMZ_STYLE }).addTo(mapInv);
+        mapInv.fitBounds(l.getBounds());
+        mapInv.invalidateSize();
+      }, 200);
     }
 
-    function showDetailsInPanel(p, targetContainerId) {
+    function showDetailsInPanel(p, targetContainerId, isInvestorView = false) {
       const c = document.getElementById(targetContainerId);
+      const cleanCoords = (p.centerCoords || '').replace(/\s+/g, '');
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${cleanCoords}`;
+
       c.innerHTML = `
         <div class="site-detail-card">
           <h3>${p.f1}</h3>
@@ -665,10 +793,20 @@
             <strong>ملاحظات:</strong>
             <p style="margin-top: 4px; line-height: 1.4; color: #002623;">${p.f12}</p>
           </div>
-          <div style="margin-top: 12px; display:flex; gap:6px;">
-            <button class="btn-wa" style="flex:1; padding:8px;" onclick="shareWhatsApp('${p.id}')">💬 مشاركة عبر واتساب</button>
-            <button class="btn-link" style="padding:8px;" onclick="copyShareLink('${p.id}')">🔗 نسخ الرابط</button>
-          </div>
+
+          <!-- زر فتح الموقع في Google Maps -->
+          ${p.centerCoords ? `
+            <a href="${googleMapsUrl}" target="_blank" class="btn-gmaps" style="margin-top:12px;">
+              📍 فتح الموقع على Google Maps
+            </a>
+          ` : ''}
+
+          ${!isInvestorView ? `
+            <div style="margin-top: 10px; display:flex; gap:6px;">
+              <button class="btn-wa" style="flex:1; padding:8px;" onclick="shareWhatsApp('${p.id}')">💬 مشاركة عبر واتساب</button>
+              <button class="btn-link" style="padding:8px;" onclick="copyShareLink('${p.id}')">🔗 نسخ الرابط</button>
+            </div>
+          ` : ''}
         </div>
       `;
     }
