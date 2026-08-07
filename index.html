@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عقارات أملاك الدولة - هيئة الاستثمار السورية</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    @font-face {
+      font-family: 'Qomra';
+      src: local('Qomra'), local('Qomra-Regular'), url('https://fonts.cdnfonts.com/s/93121/Qomra.woff') format('woff');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+
+    :root {
+      --bg-primary: #002623;
+      --accent-gold: #b9a779;
+      --text-white: #ffffff;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      /* ألوان التظليل للمضلعات */
+      --poly-fill: #14532d;   /* أخضر داكن */
+      --poly-stroke: #f97316; /* برتقالي */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Qomra', 'Cairo', 'Tajawal', sans-serif; }
+    body { background-color: #f4f6f8; color: #1e293b; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* --- الترويسة الرئيسية --- */
+    header {
+      height: 70px;
+      background-color: var(--bg-primary);
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 25px;
+      border-bottom: 3px solid var(--accent-gold);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 2000;
+    }
+    .brand-logo-text { font-size: 18px; font-weight: bold; color: var(--accent-gold); }
+    .brand-sub { font-size: 13px; color: #cbd5e1; margin-top: 2px; }
+    
+    .nav-tabs { display: flex; gap: 10px; align-items: center; }
+    .nav-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--accent-gold);
+      background: transparent;
+      color: var(--text-white);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .nav-btn.active, .nav-btn:hover { background: var(--accent-gold); color: var(--bg-primary); }
+    .user-badge { background: rgba(185, 167, 121, 0.2); border: 1px solid var(--accent-gold); padding: 5px 12px; border-radius: 20px; font-size: 12px; color: var(--accent-gold); }
+    .btn-logout { background: #ef4444; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 10px; }
+
+    /* --- شاشة تسجيل الدخول --- */
+    #login-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 38, 35, 0.95);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999;
+    }
+    .login-card {
+      background: var(--text-white);
+      width: 420px;
+      padding: 35px;
+      border-radius: 12px;
+      border-top: 5px solid var(--accent-gold);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .login-card h2 { color: var(--bg-primary); font-size: 20px; margin-bottom: 5px; }
+    .login-card p { color: var(--accent-gold); font-weight: bold; margin-bottom: 25px; }
+    
+    .password-wrapper { display: flex; gap: 5px; position: relative; }
+    .btn-toggle-pass {
+      background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 12px; cursor: pointer; font-size: 14px;
+    }
+
+    /* --- الهيكل الرئيسي --- */
+    .main-wrapper { flex: 1; display: flex; position: relative; overflow: hidden; }
+    .app-page { display: none; width: 100%; height: 100%; }
+    .app-page.active { display: flex; }
+
+    .sidebar {
+      width: 440px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+      overflow-y: auto;
+    }
+    .sidebar-header { padding: 16px; background: var(--bg-primary); color: var(--accent-gold); font-size: 15px; font-weight: bold; }
+    
+    .form-grid { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group.full-width { grid-column: span 2; }
+    .form-group label { font-size: 12px; font-weight: bold; color: var(--bg-primary); margin-bottom: 4px; }
+    .form-control {
+      width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; transition: border 0.2s;
+    }
+    .form-control:focus { border-color: var(--accent-gold); }
+    
+    .btn-action {
+      background: var(--bg-primary); color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;
+    }
+    .btn-action:hover { background: var(--accent-gold); color: var(--bg-primary); }
+
+    /* الخريطة */
+    .map-container { flex: 1; height: 100%; }
+
+    /* بطاقة التفاصيل */
+    .site-detail-card { background: white; border-radius: 8px; border: 1px solid var(--border-color); margin: 15px; padding: 15px; }
+    .site-detail-card h3 { color: var(--bg-primary); font-size: 16px; border-bottom: 2px solid var(--accent-gold); padding-bottom: 6px; margin-bottom: 12px; }
+    .detail-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #f1f5f9; font-size: 12.5px; }
+    .detail-key { font-weight: bold; color: #64748b; }
+    .detail-val { color: var(--bg-primary); font-weight: 600; }
+
+    /* عناصر الفرز والبحث */
+    .filter-box { padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid var(--border-color); }
+    .filter-label { font-size: 12px; font-weight: bold; color: var(--bg-primary); margin-bottom: 6px; display: block; }
+    
+    .saved-item { 
+      padding: 10px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 8px; font-size: 12px; cursor: pointer; transition: 0.2s;
+    }
+    .saved-item:hover { border-color: var(--accent-gold); background: #fdfbf7; }
+    .saved-item-header { display: flex; justify-content: space-between; font-weight: bold; color: var(--bg-primary); margin-bottom: 6px; }
+    .action-btns { display: flex; gap: 4px; margin-top: 6px; }
+    .btn-wa { background: #25d366; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    .btn-link { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    .btn-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+
+    #investor-view-container { display: none; width: 100vw; height: 100vh; flex-direction: column; }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 1. نافذة تسجيل الدخول ==================== -->
+  <div id="login-overlay">
+    <div class="login-card">
+      <h2>هيئة الاستثمار السورية - فرع حلب</h2>
+      <p>عقارات أملاك الدولة</p>
+      
+      <form onsubmit="handleLogin(event)" class="login-form">
+        <div class="form-group" style="text-align: right; margin-bottom: 12px;">
+          <label>اسم المستخدم:</label>
+          <input type="text" id="username" class="form-control" placeholder="مثال: SIA 001" required>
+        </div>
+        
+        <div class="form-group" style="text-align: right; margin-bottom: 12px;">
+          <label>كلمة السر:</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" class="form-control" placeholder="أدخل كلمة السر" required>
+            <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility()" title="إظهار/إخفاء كلمة السر">👁️</button>
+          </div>
+        </div>
+
+        <div id="login-error" style="color: #ef4444; font-size: 12px; margin: 8px 0; display: none;">اسم المستخدم أو كلمة السر غير صحيحة، يرجى المحاولة مجدداً.</div>
+        <button type="submit" class="btn-action" style="margin-top: 15px;">تسجيل الدخول</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 2. الترويسة الرئيسية ==================== -->
+  <header>
+    <div>
+      <div class="brand-logo-text">هيئة الاستثمار السورية - فرع حلب</div>
+      <div class="brand-sub">عقارات أملاك الدولة</div>
+    </div>
+    
+    <div class="nav-tabs" id="nav-area" style="display: none;">
+      <button class="nav-btn active" id="tab-entry-btn" onclick="switchTab('entry')">✏️ إدخال عقار جديد</button>
+      <button class="nav-btn" id="tab-viewer-btn" onclick="switchTab('viewer')">🗺️ استعراض كل العقارات</button>
+      <span class="user-badge" id="current-user-display">المستخدم: -</span>
+      <button class="btn-logout" onclick="logout()">خروج</button>
+    </div>
+  </header>
+
+  <!-- ==================== 3. التطبيق الرئيسي ==================== -->
+  <div class="main-wrapper" id="app-wrapper">
+    
+    <!-- صفحة الإدخال (SIA 001, SIA 002) -->
+    <div id="page-entry" class="app-page active">
+      <div class="sidebar">
+        <div class="sidebar-header">إدخال وبيانات العقار الاستثماري</div>
+        
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>📁 رفع ملف KMZ / KML للعقار:</label>
+            <input type="file" id="field-kmz" class="form-control" accept=".kmz,.kml">
+          </div>
+
+          <div class="form-group"><label>1. اسم العقار/الموقع:</label><input type="text" id="field-1" class="form-control"></div>
+          <div class="form-group"><label>2. رقم المشروع:</label><input type="text" id="field-2" class="form-control"></div>
+          <div class="form-group"><label>3. رقم العقار:</label><input type="text" id="field-3" class="form-control"></div>
+          <div class="form-group"><label>4. المنطقة العقارية:</label><input type="text" id="field-4" class="form-control"></div>
+          <div class="form-group full-width"><label>5. العنوان التفصيلي:</label><input type="text" id="field-5" class="form-control"></div>
+          <div class="form-group"><label>6. المساحة (م²):</label><input type="text" id="field-6" class="form-control"></div>
+          <div class="form-group"><label>7. الملكية:</label><input type="text" id="field-7" class="form-control"></div>
+          <div class="form-group"><label>8. الصفة التنظيمية:</label><input type="text" id="field-8" class="form-control"></div>
+          <div class="form-group"><label>9. ضابطة البناء:</label><input type="text" id="field-9" class="form-control"></div>
+          <div class="form-group full-width"><label>10. الاستثمار المقترح:</label><input type="text" id="field-10" class="form-control"></div>
+          <div class="form-group full-width"><label>11. الحالة الراهنة:</label><input type="text" id="field-11" class="form-control"></div>
+          <div class="form-group full-width"><label>12. ملاحظات إضافية:</label><textarea id="field-12" class="form-control" rows="2"></textarea></div>
+        </div>
+
+        <div style="padding: 0 15px 15px 15px;">
+          <button class="btn-action" onclick="savePropertyData()">💾 حفظ العقار في الخريطة</button>
+        </div>
+
+        <div class="sidebar-header" style="font-size: 13px;">قائمة العقارات المسجلة</div>
+        <div class="filter-box">
+          <input type="text" id="search-admin" class="form-control" onkeyup="renderAdminList()" placeholder="🔍 بحث باسم العقار، الرقم، أو المنطقة...">
+        </div>
+        <div style="padding: 10px 15px;" id="admin-sites-list"></div>
+      </div>
+      
+      <div id="map-entry" class="map-container"></div>
+    </div>
+
+    <!-- صفحة استعراض كافة العقارات (مع الفرز حسب المنطقة العقارية) -->
+    <div id="page-viewer" class="app-page">
+      <div class="sidebar">
+        <div class="sidebar-header">العقارات واللوحة التفصيلية</div>
+        
+        <!-- أدوات التصفية والفرز بالمنطقة العقارية -->
+        <div class="filter-box">
+          <label class="filter-label">🏘️ فرز وتصفية حسب المنطقة العقارية:</label>
+          <select id="filter-zone" class="form-control" style="margin-bottom: 8px; font-weight: bold; color: var(--bg-primary);" onchange="onZoneFilterChange()">
+            <option value="">جميع المناطق العقارية (الكل)</option>
+          </select>
+          
+          <input type="text" id="search-viewer" class="form-control" onkeyup="renderViewerSearchList()" placeholder="🔍 بحث باسم العقار أو رقمه...">
+        </div>
+
+        <div style="padding: 10px 15px 0 15px;" id="viewer-sites-search-list"></div>
+        
+        <div id="viewer-details-panel">
+          <div class="site-detail-card">
+            <p style="color: #64748b; font-size: 13px; text-align: center;">حدد المنطقة العقارية أو انقر على أي عقار من الخريطة للتقريب واستعراض خصائصه بالكامل.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div id="map-viewer" class="map-container"></div>
+    </div>
+
+  </div>
+
+  <!-- ==================== 4. شاشة عرض المستثمر ==================== -->
+  <div id="investor-view-container">
+    <header>
+      <div>
+        <div class="brand-logo-text">هيئة الاستثمار السورية - فرع حلب</div>
+        <div class="brand-sub">عقارات أملاك الدولة - بطاقة عرض موقع استثماري</div>
+      </div>
+    </header>
+    <div class="main-wrapper">
+      <div class="sidebar">
+        <div class="sidebar-header">الخصائص الاستثمارية للموقع</div>
+        <div id="investor-details-panel"></div>
+      </div>
+      <div id="map-investor" class="map-container"></div>
+    </div>
+  </div>
+
+  <!-- المكتبات البرمجية -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mapbox/togeojson@0.16.0/togeojson.js"></script>
+
+  <script>
+    // --- الحسابات والصلاحيات ---
+    const ACCOUNTS = {
+      "SIA-ALP-001": { pass: "SIA001Aleppo", role: "admin" },
+      "SIA-ALP-002": { pass: "SIA002Aleppo", role: "admin" },
+      "SIA-ALP-003": { pass: "SIA003Aleppo", role: "viewer" },
+      "SIA-ALP-004": { pass: "SIA004Aleppo", role: "viewer" }
+    };
+
+    // نمط ألوان المضلعات الجغرافية (أخضر داكن وحدود برتقالية بحدود 50% شفافية)
+    const KMZ_STYLE = {
+      color: '#f97316',       // برتقالي
+      fillColor: '#14532d',   // أخضر داكن
+      weight: 3,
+      fillOpacity: 0.5        // شفافية 50%
+    };
+
+    let currentUser = null;
+    let allProperties = JSON.parse(localStorage.getItem('sia_aleppo_properties') || '[]');
+    let currentGeoJSON = null;
+    let tempLayer = null;
+
+    function getGoogleHybridTile() {
+      return L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20, attribution: 'Google Hybrid - هيئة الاستثمار السورية'
+      });
+    }
+
+    const mapEntry = L.map('map-entry', { layers: [getGoogleHybridTile()] }).setView([36.2021, 37.1343], 12);
+    const mapViewer = L.map('map-viewer', { layers: [getGoogleHybridTile()] }).setView([36.2021, 37.1343], 12);
+
+    function togglePassVisibility() {
+      const pInput = document.getElementById('password');
+      pInput.type = pInput.type === 'password' ? 'text' : 'password';
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shareId = urlParams.get('siteId');
+
+      if (shareId) {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-wrapper').style.display = 'none';
+        document.getElementById('investor-view-container').style.display = 'flex';
+        initInvestorView(shareId);
+      } else {
+        const savedUser = sessionStorage.getItem('sia_logged_user');
+        if (savedUser && ACCOUNTS[savedUser]) {
+          loginUser(savedUser);
+        }
+      }
+    });
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+
+      if (ACCOUNTS[u] && ACCOUNTS[u].pass === p) {
+        sessionStorage.setItem('sia_logged_user', u);
+        document.getElementById('login-error').style.display = 'none';
+        loginUser(u);
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    function loginUser(username) {
+      currentUser = username;
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('nav-area').style.display = 'flex';
+      document.getElementById('current-user-display').innerText = `المستخدم: ${username}`;
+
+      const role = ACCOUNTS[username].role;
+      if (role === 'viewer') {
+        document.getElementById('tab-entry-btn').style.display = 'none';
+        switchTab('viewer');
+      } else {
+        document.getElementById('tab-entry-btn').style.display = 'inline-block';
+        switchTab('entry');
+      }
+
+      populateZoneDropdown();
+      renderAdminList();
+      renderViewerMap();
+      renderViewerSearchList();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('sia_logged_user');
+      window.location.reload();
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+
+      if (tab === 'entry') {
+        document.getElementById('tab-entry-btn').classList.add('active');
+        document.getElementById('page-entry').classList.add('active');
+        mapEntry.invalidateSize();
+      } else {
+        document.getElementById('tab-viewer-btn').classList.add('active');
+        document.getElementById('page-viewer').classList.add('active');
+        mapViewer.invalidateSize();
+        populateZoneDropdown();
+        renderViewerMap();
+        renderViewerSearchList();
+      }
+    }
+
+    // --- تفكيك ملفات KMZ ---
+    document.getElementById('field-kmz').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        let kmlText = "";
+        if (file.name.toLowerCase().endsWith('.kmz')) {
+          const zip = await JSZip.loadAsync(file);
+          const kmlFile = Object.keys(zip.files).find(name => name.toLowerCase().endsWith('.kml'));
+          if (!kmlFile) throw new Error("لم يتم العثور على ملف KML داخل أرشيف KMZ");
+          kmlText = await zip.file(kmlFile).async("string");
+        } else {
+          kmlText = await file.text();
+        }
+
+        const parser = new DOMParser();
+        const kmlDom = parser.parseFromString(kmlText, 'text/xml');
+        const converter = window.toGeoJSON || window.togeojson;
+        currentGeoJSON = converter.kml(kmlDom);
+
+        if (tempLayer) mapEntry.removeLayer(tempLayer);
+        tempLayer = L.geoJSON(currentGeoJSON, { style: KMZ_STYLE }).addTo(mapEntry);
+        mapEntry.fitBounds(tempLayer.getBounds());
+
+      } catch (err) {
+        alert("حدث خطأ أثناء قراءة ملف KMZ: " + err.message);
+      }
+    });
+
+    // --- حفظ البيانات وقائمة المناطق ---
+    function savePropertyData() {
+      if (!currentGeoJSON) { alert("يرجى اختيار وتفكيك ملف KMZ الخاص بالموقع أولاً."); return; }
+      
+      const bounds = tempLayer.getBounds();
+      const center = bounds.getCenter();
+      const centerCoordsStr = `${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}`;
+
+      const propData = {
+        id: 'prop_' + Date.now(),
+        f1: document.getElementById('field-1').value || 'عقار جديد',
+        f2: document.getElementById('field-2').value || '-',
+        f3: document.getElementById('field-3').value || '-',
+        f4: document.getElementById('field-4').value || 'غير محدد',
+        f5: document.getElementById('field-5').value || '-',
+        f6: document.getElementById('field-6').value || '-',
+        f7: document.getElementById('field-7').value || '-',
+        f8: document.getElementById('field-8').value || '-',
+        f9: document.getElementById('field-9').value || '-',
+        f10: document.getElementById('field-10').value || '-',
+        f11: document.getElementById('field-11').value || '-',
+        f12: document.getElementById('field-12').value || '-',
+        centerCoords: centerCoordsStr,
+        geoJSON: currentGeoJSON
+      };
+
+      allProperties.push(propData);
+      localStorage.setItem('sia_aleppo_properties', JSON.stringify(allProperties));
+
+      for(let i=1; i<=12; i++) document.getElementById('field-' + i).value = '';
+      document.getElementById('field-kmz').value = '';
+      if (tempLayer) mapEntry.removeLayer(tempLayer);
+      currentGeoJSON = null;
+
+      populateZoneDropdown();
+      renderAdminList();
+      renderViewerMap();
+      renderViewerSearchList();
+      alert("تم حفظ العقار بنجاح في قاعدة البيانات وتحديث قائمة المناطق!");
+    }
+
+    // --- ملء القائمة المنسدلة بالمناطق العقارية المتوفرة فريداً ---
+    function populateZoneDropdown() {
+      const select = document.getElementById('filter-zone');
+      if (!select) return;
+      
+      const currentSelected = select.value;
+      select.innerHTML = '<option value="">جميع المناطق العقارية (الكل)</option>';
+
+      // تجميع المناطق العقارية المتفرقة وبدون تكرار
+      const uniqueZones = [...new Set(allProperties.map(p => (p.f4 || '').trim()).filter(z => z && z !== '-'))];
+      uniqueZones.sort().forEach(zone => {
+        const opt = document.createElement('option');
+        opt.value = zone;
+        opt.textContent = `منطقة: ${zone}`;
+        if (zone === currentSelected) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    // --- حدث تغيير خيار التصفية بالمنطقة ---
+    function onZoneFilterChange() {
+      renderViewerMap();
+      renderViewerSearchList();
+    }
+
+    function shareWhatsApp(id) {
+      const p = allProperties.find(item => item.id === id);
+      if (!p) return;
+      const shareUrl = window.location.origin + window.location.pathname + '?siteId=' + id;
+      const text = `*هيئة الاستثمار السورية - فرع حلب*\n*عقارات أملاك الدولة*\n\n📍 *الموقع:* ${p.f1}\n🔢 *رقم العقار:* ${p.f3}\n🗺️ *المنطقة:* ${p.f4}\n📐 *المساحة:* ${p.f6} م²\n📌 *الإحداثيات:* ${p.centerCoords}\n\n🔗 *رابط العرض التفاعلي على الخريطة:*\n${shareUrl}`;
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    function copyShareLink(id) {
+      const url = window.location.origin + window.location.pathname + '?siteId=' + id;
+      navigator.clipboard.writeText(url);
+      alert("تم نسخ رابط العرض بنجاح!\n\n" + url);
+    }
+
+    function deleteProperty(id) {
+      if (confirm("هل أنت تأكد من حذف هذا العقار نهائياً؟")) {
+        allProperties = allProperties.filter(p => p.id !== id);
+        localStorage.setItem('sia_aleppo_properties', JSON.stringify(allProperties));
+        populateZoneDropdown();
+        renderAdminList();
+        renderViewerMap();
+        renderViewerSearchList();
+      }
+    }
+
+    function zoomToProperty(id, mapTarget) {
+      const p = allProperties.find(item => item.id === id);
+      if (!p) return;
+      
+      const l = L.geoJSON(p.geoJSON);
+      if (mapTarget === 'entry') {
+        mapEntry.fitBounds(l.getBounds());
+      } else {
+        mapViewer.fitBounds(l.getBounds());
+        showDetailsInPanel(p, 'viewer-details-panel');
+      }
+    }
+
+    function renderAdminList() {
+      const query = (document.getElementById('search-admin')?.value || '').toLowerCase();
+      const c = document.getElementById('admin-sites-list');
+      c.innerHTML = '';
+
+      const filtered = allProperties.filter(p => 
+        p.f1.toLowerCase().includes(query) || 
+        p.f3.toLowerCase().includes(query) || 
+        p.f4.toLowerCase().includes(query)
+      );
+
+      filtered.forEach(p => {
+        c.innerHTML += `
+          <div class="saved-item" onclick="zoomToProperty('${p.id}', 'entry')">
+            <div class="saved-item-header">
+              <span>${p.f1}</span>
+              <span style="color: #64748b;">عقار: ${p.f3}</span>
+            </div>
+            <div style="color: #475569; font-size: 11px;">المنطقة: ${p.f4} | المركز: ${p.centerCoords || '-'}</div>
+            <div class="action-btns" onclick="event.stopPropagation()">
+              <button class="btn-wa" onclick="shareWhatsApp('${p.id}')">💬 واتساب</button>
+              <button class="btn-link" onclick="copyShareLink('${p.id}')">🔗 نسخ الرابط</button>
+              <button class="btn-delete" onclick="deleteProperty('${p.id}')">حذف</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // --- قائمة البحث المفلترة بالمنطقة والاسم ---
+    function renderViewerSearchList() {
+      const query = (document.getElementById('search-viewer')?.value || '').toLowerCase();
+      const selectedZone = document.getElementById('filter-zone')?.value || '';
+      const c = document.getElementById('viewer-sites-search-list');
+      if (!c) return;
+      c.innerHTML = '';
+
+      let filtered = allProperties;
+
+      // 1. التصفية حسب المنطقة العقارية المحددة
+      if (selectedZone) {
+        filtered = filtered.filter(p => (p.f4 || '').trim() === selectedZone);
+      }
+
+      // 2. التصفية حسب كلمة البحث
+      if (query) {
+        filtered = filtered.filter(p => 
+          p.f1.toLowerCase().includes(query) || 
+          p.f3.toLowerCase().includes(query) || 
+          p.f4.toLowerCase().includes(query)
+        );
+      }
+
+      if (filtered.length === 0) {
+        c.innerHTML = '<div style="font-size:12px; color:#64748b; padding:8px; text-align:center;">لا توجد عقارات مطابقة في هذه المنطقة</div>';
+        return;
+      }
+
+      filtered.forEach(p => {
+        c.innerHTML += `
+          <div class="saved-item" onclick="zoomToProperty('${p.id}', 'viewer')">
+            <div class="saved-item-header">
+              <span>${p.f1}</span>
+              <span style="color: #0284c7;">عقار: ${p.f3}</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">المنطقة: ${p.f4} | المساحة: ${p.f6} م²</div>
+          </div>
+        `;
+      });
+    }
+
+    // --- رسم العقارات المفلترة على الخريطة ---
+    let viewerGroup = L.layerGroup();
+
+    function renderViewerMap() {
+      viewerGroup.clearLayers();
+      if (allProperties.length === 0) return;
+
+      const selectedZone = document.getElementById('filter-zone')?.value || '';
+      
+      // اختيار العقارات التابعة للمنطقة المحددة فقط أو اختيار الجميع
+      const propertiesToDisplay = selectedZone 
+        ? allProperties.filter(p => (p.f4 || '').trim() === selectedZone)
+        : allProperties;
+
+      const bounds = L.latLngBounds();
+      propertiesToDisplay.forEach(p => {
+        const l = L.geoJSON(p.geoJSON, {
+          style: KMZ_STYLE,
+          onEachFeature: function(feat, layer) {
+            layer.on('click', () => showDetailsInPanel(p, 'viewer-details-panel'));
+          }
+        });
+        viewerGroup.addLayer(l);
+        bounds.extend(l.getBounds());
+      });
+
+      viewerGroup.addTo(mapViewer);
+      if (bounds.isValid()) mapViewer.fitBounds(bounds);
+    }
+
+    function initInvestorView(siteId) {
+      const p = allProperties.find(item => item.id === siteId);
+      const container = document.getElementById('investor-details-panel');
+
+      if (!p) {
+        container.innerHTML = '<div class="site-detail-card"><p style="color:#ef4444;">الموقع المطلوب غير موجود أو تم إزالته.</p></div>';
+        return;
+      }
+
+      showDetailsInPanel(p, 'investor-details-panel');
+
+      const mapInv = L.map('map-investor', { layers: [getGoogleHybridTile()] });
+      const l = L.geoJSON(p.geoJSON, { style: KMZ_STYLE }).addTo(mapInv);
+      mapInv.fitBounds(l.getBounds());
+    }
+
+    function showDetailsInPanel(p, targetContainerId) {
+      const c = document.getElementById(targetContainerId);
+      c.innerHTML = `
+        <div class="site-detail-card">
+          <h3>${p.f1}</h3>
+          <div class="detail-row"><span class="detail-key">رقم المشروع:</span> <span class="detail-val">${p.f2}</span></div>
+          <div class="detail-row"><span class="detail-key">رقم العقار:</span> <span class="detail-val">${p.f3}</span></div>
+          <div class="detail-row"><span class="detail-key">المنطقة العقارية:</span> <span class="detail-val" style="color: #b9a779; font-weight: bold;">${p.f4}</span></div>
+          <div class="detail-row"><span class="detail-key">العنوان:</span> <span class="detail-val">${p.f5}</span></div>
+          <div class="detail-row"><span class="detail-key">المساحة:</span> <span class="detail-val">${p.f6} م²</span></div>
+          <div class="detail-row"><span class="detail-key">إحداثيات المركز:</span> <span class="detail-val" style="color:#0284c7;">${p.centerCoords || '-'}</span></div>
+          <div class="detail-row"><span class="detail-key">الملكية:</span> <span class="detail-val">${p.f7}</span></div>
+          <div class="detail-row"><span class="detail-key">الصفة التنظيمية:</span> <span class="detail-val">${p.f8}</span></div>
+          <div class="detail-row"><span class="detail-key">ضابطة البناء:</span> <span class="detail-val">${p.f9}</span></div>
+          <div class="detail-row"><span class="detail-key">الاستثمار المقترح:</span> <span class="detail-val">${p.f10}</span></div>
+          <div class="detail-row"><span class="detail-key">الحالة الراهنة:</span> <span class="detail-val">${p.f11}</span></div>
+          <div style="margin-top: 10px; font-size: 12px; color: #475569;">
+            <strong>ملاحظات:</strong>
+            <p style="margin-top: 4px; line-height: 1.4; color: #002623;">${p.f12}</p>
+          </div>
+          <div style="margin-top: 12px; display:flex; gap:6px;">
+            <button class="btn-wa" style="flex:1; padding:8px;" onclick="shareWhatsApp('${p.id}')">💬 مشاركة عبر واتساب</button>
+            <button class="btn-link" style="padding:8px;" onclick="copyShareLink('${p.id}')">🔗 نسخ الرابط</button>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
