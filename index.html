@@ -45,11 +45,11 @@
       display: flex;
       width: 100vw;
       height: 100vh;
-      height: 100dvh; /* Dynamic Viewport Height for Mobile */
+      height: 100dvh;
       flex-direction: row;
     }
 
-    /* Sidebar Container (Contains Header, Tabs, Content, and Footer) */
+    /* Sidebar Container */
     .sidebar-container {
       width: 400px;
       min-width: 320px;
@@ -191,12 +191,6 @@
       font-size: 0.9rem;
     }
 
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none;
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 4px var(--accent-gold);
-    }
-
     .password-wrapper {
       position: relative;
     }
@@ -243,10 +237,6 @@
       background-color: #8b0000;
       color: var(--white);
       border: none;
-    }
-
-    .btn-danger:hover {
-      background-color: #a00000;
     }
 
     .auth-error {
@@ -300,7 +290,6 @@
       white-space: nowrap;
     }
 
-    /* Layer Selector Transferred to TOP RIGHT */
     .layer-selector {
       position: absolute;
       top: 10px;
@@ -348,11 +337,18 @@
       cursor: pointer;
       font-size: 0.7rem;
       font-weight: bold;
-      transition: background 0.2s ease;
     }
 
-    .logout-badge-btn:hover {
-      background-color: #b30000;
+    /* Special Investor View / Clean Fullscreen Mode */
+    body.investor-mode .sidebar-container {
+      display: none !important;
+    }
+
+    body.investor-mode .map-container {
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      flex: none !important;
     }
 
     /* Responsive Design for Mobile Devices */
@@ -379,19 +375,6 @@
         border-top: 2px solid var(--accent-gold);
       }
 
-      header h1 {
-        font-size: 0.95rem;
-      }
-
-      header h2 {
-        font-size: 0.8rem;
-      }
-
-      .tab-btn {
-        padding: 8px 4px;
-        font-size: 0.78rem;
-      }
-
       .user-badge {
         bottom: auto;
         top: 10px;
@@ -413,7 +396,7 @@
 </head>
 <body>
 
-  <!-- Auth Screen Overlay (Standard Form for Password Managers) -->
+  <!-- Auth Screen Overlay -->
   <div id="authOverlay">
     <form class="auth-card" id="loginForm" method="post" action="javascript:void(0);" onsubmit="handleLogin(event)">
       <h3>تسجيل الدخول - عقارات أملاك الدولة</h3>
@@ -429,6 +412,7 @@
         </div>
       </div>
       <button type="submit" class="btn" id="btnLoginSubmit">دخول</button>
+      <button type="button" class="btn btn-secondary" id="btnCancelLogin" style="margin-top: 6px; display: none;" onclick="closeLoginOverlay()">إلغاء / عودة للعرض</button>
       <div id="authError" class="auth-error">البريد الإلكتروني أو كلمة السر غير صحيحة</div>
     </form>
   </div>
@@ -456,22 +440,17 @@
 
     <!-- Sidebar Container -->
     <aside class="sidebar-container">
-      
-      <!-- Header -->
       <header>
         <h1>هيئة الاستثمار السورية - فرع حلب</h1>
         <h2>تطبيق عقارات أملاك الدولة</h2>
       </header>
 
-      <!-- Tabs Navigation -->
       <div class="tabs-nav">
         <button class="tab-btn active" id="btnTabSearch" onclick="switchTab('searchTab')">استعراض والبحث في العقارات</button>
         <button class="tab-btn" id="btnTabEdit" onclick="switchTab('editTab')">إدخال معلومات عقار جديد</button>
       </div>
 
-      <!-- Scrollable Content Area -->
       <div class="sidebar-content">
-        
         <!-- Tab 1: Property Entry -->
         <div id="editTab" class="tab-content">
           <h3 style="margin-bottom: 10px; border-bottom: 2px solid var(--accent-gold); padding-bottom: 4px; font-size: 0.95rem;">إضافة / تعديل بيانات عقار</h3>
@@ -481,7 +460,6 @@
             <div class="form-group">
               <label>ملف حدود العقار (KML أو KMZ)</label>
               <input type="file" id="kmlFileInput" accept=".kml,.kmz" />
-              <small style="color: #666; font-size: 0.72rem;">اختر ملف الحدود لتحديده على الخريطة تلقائياً</small>
             </div>
 
             <div class="form-group">
@@ -496,7 +474,7 @@
 
             <div class="form-group">
               <label>مساحة العقار (متر مربع)</label>
-              <input type="text" id="propArea" placeholder="مثال: 5000 م2" />
+              <input type="text" id="propArea" placeholder="مثال: 5000" />
             </div>
 
             <div class="form-group">
@@ -563,17 +541,15 @@
 
       </div>
 
-      <!-- Footer -->
       <footer>
         جميع حقوق الملكية لهيئة الاستثمار السورية - فرع حلب | رقم النسخة 1.0.26.7.4
       </footer>
-
     </aside>
 
   </div>
 
   <script>
-    // 1. Firebase Configuration
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC9vy3BpGfGSbaYcj3kL84Di7_NhUjR8wk",
       authDomain: "sia-aleppo-map.firebaseapp.com",
@@ -607,19 +583,18 @@
       window.addEventListener('orientationchange', refreshMapSize);
     };
 
-    // Explicit Session Persistence & Auth State Listener
     function setupAuthPersistenceAndListener() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isSharedView = urlParams.has('propId');
+
       auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
         .then(() => {
           auth.onAuthStateChanged((user) => {
             if (user) {
               if (user.email.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase()) {
-                currentUser = {
-                  email: user.email,
-                  canEdit: true
-                };
-                
+                currentUser = { email: user.email, canEdit: true };
                 document.getElementById('authOverlay').style.display = 'none';
+                document.body.classList.remove('investor-mode');
                 document.getElementById('userBadgeDisplay').innerHTML = `
                   <span>المستخدم: ${currentUser.email}</span>
                   <button class="logout-badge-btn" onclick="handleLogout()">تسجيل الخروج</button>
@@ -628,18 +603,44 @@
                 refreshMapSize();
               } else {
                 auth.signOut();
-                showAuthOverlay('عذراً، هذا البريد الإلكتروني غير مثرّح له بالتعديل.');
+                if (!isSharedView) showAuthOverlay('عذراً، هذا البريد الإلكتروني غير مصرح له بالتعديل.');
               }
             } else {
               currentUser = null;
-              showAuthOverlay();
+              if (isSharedView) {
+                // Public Investor Shared Mode
+                document.body.classList.add('investor-mode');
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('userBadgeDisplay').innerHTML = `
+                  <span>وضع عرض المستثمر</span>
+                  <button class="logout-badge-btn" style="background-color: var(--accent-gold); color: var(--primary-dark);" onclick="openLoginOverlay()">تسجيل الدخول كمشرف</button>
+                `;
+                refreshMapSize();
+              } else {
+                document.body.classList.remove('investor-mode');
+                showAuthOverlay();
+              }
             }
           });
         });
     }
 
+    function openLoginOverlay() {
+      document.getElementById('authOverlay').style.display = 'flex';
+      if (document.body.classList.contains('investor-mode')) {
+        document.getElementById('btnCancelLogin').style.display = 'block';
+      } else {
+        document.getElementById('btnCancelLogin').style.display = 'none';
+      }
+    }
+
+    function closeLoginOverlay() {
+      document.getElementById('authOverlay').style.display = 'none';
+    }
+
     function showAuthOverlay(errorMsg = '') {
       document.getElementById('authOverlay').style.display = 'flex';
+      document.getElementById('btnCancelLogin').style.display = 'none';
       document.getElementById('userBadgeDisplay').innerHTML = '<span>المستخدم: غير مسجل</span>';
       const errorDiv = document.getElementById('authError');
       if (errorMsg) {
@@ -654,7 +655,16 @@
       if (confirm('هل أنت تأكد من رغبتك في تسجيل الخروج من التطبيق؟')) {
         auth.signOut().then(() => {
           currentUser = null;
-          showAuthOverlay();
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.has('propId')) {
+            document.body.classList.add('investor-mode');
+            document.getElementById('userBadgeDisplay').innerHTML = `
+              <span>وضع عرض المستثمر</span>
+              <button class="logout-badge-btn" style="background-color: var(--accent-gold); color: var(--primary-dark);" onclick="openLoginOverlay()">تسجيل الدخول كمشرف</button>
+            `;
+          } else {
+            showAuthOverlay();
+          }
           filterProperties();
         });
       }
@@ -662,9 +672,7 @@
 
     function refreshMapSize() {
       if (map) {
-        setTimeout(() => {
-          map.invalidateSize();
-        }, 200);
+        setTimeout(() => { map.invalidateSize(); }, 200);
       }
     }
 
@@ -680,7 +688,6 @@
       }
     }
 
-    // Login Handler
     function handleLogin(e) {
       if (e) e.preventDefault();
 
@@ -767,9 +774,7 @@
         });
       } else if (fileName.endsWith('.kml')) {
         const reader = new FileReader();
-        reader.onload = function(evt) {
-          parseKMLText(evt.target.result);
-        };
+        reader.onload = function(evt) { parseKMLText(evt.target.result); };
         reader.readAsText(file);
       }
     }
@@ -799,10 +804,7 @@
           currentParsedPolygonCoords = polygonCoords;
           currentLayerGroup.clearLayers();
           const tempPoly = L.polygon(polygonCoords, {
-            color: '#e65100',
-            fillColor: '#002623',
-            fillOpacity: 0.5,
-            weight: 3
+            color: '#e65100', fillColor: '#002623', fillOpacity: 0.5, weight: 3
           }).addTo(currentLayerGroup);
 
           map.fitBounds(tempPoly.getBounds());
@@ -851,9 +853,7 @@
             resetForm();
             switchTab('searchTab');
           })
-          .catch((error) => {
-            alert('فشل الحفظ: ' + error.message);
-          });
+          .catch((error) => { alert('فشل الحفظ: ' + error.message); });
       } else {
         db.ref('properties').push(propData)
           .then(() => {
@@ -861,9 +861,7 @@
             resetForm();
             switchTab('searchTab');
           })
-          .catch((error) => {
-            alert('فشل الحفظ: ' + error.message);
-          });
+          .catch((error) => { alert('فشل الحفظ: ' + error.message); });
       }
     }
 
@@ -888,6 +886,24 @@
       });
     }
 
+    // Precise Geometric Centroid Calculation for Map Pins
+    function getPolygonCenter(coords) {
+      if (!coords || coords.length === 0) return null;
+      let sumLat = 0;
+      let sumLng = 0;
+      const count = coords.length;
+
+      for (let i = 0; i < count; i++) {
+        sumLat += parseFloat(coords[i][0]);
+        sumLng += parseFloat(coords[i][1]);
+      }
+
+      return {
+        lat: (sumLat / count).toFixed(7),
+        lng: (sumLng / count).toFixed(7)
+      };
+    }
+
     function renderAllPropertiesOnMap() {
       currentLayerGroup.clearLayers();
       mapPolygons = {};
@@ -896,20 +912,27 @@
         const item = allProperties[key];
         if (item.coordinates && item.coordinates.length > 0) {
           const poly = L.polygon(item.coordinates, {
-            color: '#e65100',
-            fillColor: '#002623',
-            fillOpacity: 0.5,
-            weight: 3
+            color: '#e65100', fillColor: '#002623', fillOpacity: 0.5, weight: 3
           }).addTo(currentLayerGroup);
 
+          const center = getPolygonCenter(item.coordinates);
+          const gmapsLink = center ? `https://maps.google.com/?q=loc:${center.lat},${center.lng}` : '#';
+
           const popupContent = `
-            <div style="direction: rtl; text-align: right; font-family: sans-serif; min-width: 180px;">
-              <h3 style="color: #002623; border-bottom: 1px solid #b9a779; padding-bottom: 4px; margin-bottom: 8px;">عقار رقم: ${item.number}</h3>
-              <p><b>المنطقة العقارية:</b> ${item.region}</p>
-              <p><b>المساحة:</b> ${item.area || 'غير محدد'}</p>
-              <p><b>الجهة المالكة:</b> ${item.owner || 'غير محدد'}</p>
-              <p><b>الوضع التنظيمي:</b> ${item.zoningStatus || 'غير محدد'}</p>
-              <p><b>الوضع الراهن:</b> ${item.currentStatus || 'غير محدد'}</p>
+            <div style="direction: rtl; text-align: right; font-family: 'Qomra Font', sans-serif; min-width: 220px; padding: 4px;">
+              <div style="background-color: #002623; color: #b9a779; padding: 6px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
+                <h3 style="margin:0; font-size: 0.95rem; color: #b9a779;">عقار رقم: ${item.number}</h3>
+                <span style="font-size: 0.8rem; color: #ffffff;">${item.region}</span>
+              </div>
+              <p style="margin-bottom: 4px; font-size: 0.83rem;"><b>المساحة:</b> ${item.area || 'غير محدد'} م²</p>
+              <p style="margin-bottom: 4px; font-size: 0.83rem;"><b>الجهة المالكة:</b> ${item.owner || 'أملاك الدولة'}</p>
+              <p style="margin-bottom: 4px; font-size: 0.83rem;"><b>الوضع التنظيمي:</b> ${item.zoningStatus || 'غير محدد'}</p>
+              <p style="margin-bottom: 4px; font-size: 0.83rem;"><b>الصفة التنظيمية:</b> ${item.zoningType || 'غير محدد'}</p>
+              <p style="margin-bottom: 4px; font-size: 0.83rem;"><b>الوضع الراهن:</b> ${item.currentStatus || 'غير محدد'}</p>
+              ${item.notes ? `<p style="margin-bottom: 4px; font-size: 0.83rem;"><b>ملاحظات:</b> ${item.notes}</p>` : ''}
+              <div style="margin-top: 10px; text-align: center;">
+                <a href="${gmapsLink}" target="_blank" style="display: inline-block; background-color: #b9a779; color: #002623; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 0.78rem;">فتح الموقع على Google Maps 📍</a>
+              </div>
             </div>
           `;
 
@@ -973,7 +996,7 @@
             <div class="action-row">
               <button class="btn" onclick="zoomToProperty('${key}')">انتقال للعقار</button>
               <button class="btn btn-secondary" onclick="shareWhatsApp('${key}')">مشاركة واتساب</button>
-              <button class="btn btn-secondary" onclick="openGoogleMaps('${key}')">العرض على خرائط Google Maps</button>
+              <button class="btn btn-secondary" onclick="openGoogleMaps('${key}')">عرض على غوغل مابس</button>
             </div>
             ${adminButtons ? `<div class="action-row" style="margin-top:5px;">${adminButtons}</div>` : ''}
           `;
@@ -986,28 +1009,14 @@
       if (mapPolygons[key]) {
         const poly = mapPolygons[key];
         map.invalidateSize();
-        map.fitBounds(poly.getBounds(), { maxZoom: 18, padding: [20, 20] });
+        map.fitBounds(poly.getBounds(), { maxZoom: 18, padding: [30, 30] });
         poly.openPopup();
 
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 768 && !document.body.classList.contains('investor-mode')) {
           document.querySelector('.map-container').scrollIntoView({ behavior: 'smooth' });
         }
       } else {
         alert('لا تتوفر إحداثيات خريطة لهذا العقار.');
-      }
-    }
-
-    function getPolygonCenter(coords) {
-      if (!coords || coords.length === 0) return null;
-      try {
-        const bounds = L.polygon(coords).getBounds();
-        const center = bounds.getCenter();
-        return {
-          lat: center.lat.toFixed(7),
-          lng: center.lng.toFixed(7)
-        };
-      } catch(e) {
-        return null;
       }
     }
 
@@ -1020,9 +1029,9 @@
       
       let text = `عقار أملاك الدولة رقم: ${item.number}\nالمنطقة العقارية: ${item.region}\n`;
       if (center) {
-        text += `الموقع على خرائط غوغل: https://www.google.com/maps?q=${center.lat},${center.lng}\n`;
+        text += `الموقع الدقيق على غوغل مابس: https://maps.google.com/?q=loc:${center.lat},${center.lng}\n`;
       }
-      text += `رابط بطاقة العقار: ${shareUrl}`;
+      text += `رابط بطاقة العقار والتفاصيل الكاملة: ${shareUrl}`;
 
       const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
       window.open(waUrl, '_blank');
@@ -1034,7 +1043,8 @@
 
       const center = getPolygonCenter(item.coordinates);
       if (center) {
-        window.open(`https://www.google.com/maps?q=${center.lat},${center.lng}`, '_blank');
+        // High Precision Exact Pinpoint Link for Mobile Google Maps
+        window.open(`https://maps.google.com/?q=loc:${center.lat},${center.lng}`, '_blank');
       }
     }
 
