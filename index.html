@@ -25,8 +25,8 @@
       --text-white: #ffffff;
       --bg-card: #ffffff;
       --border-color: #e2e8f0;
-      --poly-fill: #14532d;   /* أخضر داكن */
-      --poly-stroke: #f97316; /* برتقالي */
+      --poly-fill: #14532d;
+      --poly-stroke: #f97316;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Qomra', 'Cairo', 'Tajawal', sans-serif; }
@@ -134,7 +134,6 @@
     .detail-key { font-weight: bold; color: #64748b; }
     .detail-val { color: var(--bg-primary); font-weight: 600; }
 
-    /* أزرار خرائط جوجل والواتساب */
     .btn-gmaps {
       display: flex; align-items: center; justify-content: center; gap: 6px;
       background: #4285F4; color: white; text-decoration: none; padding: 10px;
@@ -143,7 +142,6 @@
     }
     .btn-gmaps:hover { background: #2b72e2; }
 
-    /* عناصر الفرز والبحث */
     .filter-box { padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid var(--border-color); }
     .filter-label { font-size: 12px; font-weight: bold; color: var(--bg-primary); margin-bottom: 6px; display: block; }
     
@@ -157,7 +155,6 @@
     .btn-link { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     .btn-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
-    /* --- تذييل حقوق الملكية والنسخة --- */
     .app-footer {
       background-color: var(--bg-primary);
       color: #94a3b8;
@@ -187,40 +184,19 @@
 
     #investor-view-container { display: none; width: 100vw; height: 100vh; flex-direction: column; }
 
-    /* --- تحسينات الشاشات الصغيرة والهواتف الذكية (Responsive CSS) --- */
     @media (max-width: 768px) {
-      header {
-        padding: 8px 12px;
-        justify-content: center;
-        text-align: center;
-      }
+      header { padding: 8px 12px; justify-content: center; text-align: center; }
       .brand-logo-text { font-size: 15px; width: 100%; }
       .brand-sub { font-size: 11px; width: 100%; }
       .nav-tabs { width: 100%; justify-content: center; margin-top: 4px; }
       .nav-btn { padding: 5px 10px; font-size: 11.5px; }
 
       .app-page { flex-direction: column-reverse; }
-      .sidebar {
-        width: 100%;
-        height: 50vh;
-        border-left: none;
-        border-top: 2px solid var(--accent-gold);
-      }
-      .map-container {
-        width: 100%;
-        height: 50vh;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      .form-group.full-width {
-        grid-column: span 1;
-      }
-
-      #investor-view-container .main-wrapper {
-        flex-direction: column-reverse;
-      }
+      .sidebar { width: 100%; height: 50vh; border-left: none; border-top: 2px solid var(--accent-gold); }
+      .map-container { width: 100%; height: 50vh; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width { grid-column: span 1; }
+      #investor-view-container .main-wrapper { flex-direction: column-reverse; }
     }
   </style>
 </head>
@@ -242,11 +218,11 @@
           <label>كلمة السر:</label>
           <div class="password-wrapper">
             <input type="password" id="password" class="form-control" placeholder="أدخل كلمة السر" required>
-            <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility()" title="إظهار/إخفاء كلمة السر">👁️</button>
+            <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility()">👁️</button>
           </div>
         </div>
 
-        <div id="login-error" style="color: #ef4444; font-size: 12px; margin: 8px 0; display: none;">اسم المستخدم أو كلمة السر غير صحيحة، يرجى المحاولة مجدداً.</div>
+        <div id="login-error" style="color: #ef4444; font-size: 12px; margin: 8px 0; display: none;">اسم المستخدم أو كلمة السر غير صحيحة.</div>
         <button type="submit" class="btn-action" style="margin-top: 10px;">تسجيل الدخول</button>
       </form>
     </div>
@@ -270,7 +246,6 @@
   <!-- ==================== 3. التطبيق الرئيسي ==================== -->
   <div class="main-wrapper" id="app-wrapper">
     
-    <!-- صفحة الإدخال (SIA 001, SIA 002) -->
     <div id="page-entry" class="app-page active">
       <div class="sidebar">
         <div class="sidebar-header">إدخال وبيانات العقار الاستثماري</div>
@@ -296,7 +271,7 @@
         </div>
 
         <div style="padding: 0 15px 15px 15px;">
-          <button class="btn-action" onclick="savePropertyData()">💾 حفظ العقار في الخريطة</button>
+          <button class="btn-action" onclick="savePropertyData()">☁️ حفظ ومزامنة العقار في السحابة</button>
         </div>
 
         <div class="sidebar-header" style="font-size: 13px;">قائمة العقارات المسجلة</div>
@@ -315,7 +290,6 @@
       <div id="map-entry" class="map-container"></div>
     </div>
 
-    <!-- صفحة استعراض كافة العقارات -->
     <div id="page-viewer" class="app-page">
       <div class="sidebar">
         <div class="sidebar-header">العقارات واللوحة التفصيلية</div>
@@ -349,7 +323,7 @@
 
   </div>
 
-  <!-- ==================== 4. شاشة عرض المستثمر (موقع منفرد وخطي) ==================== -->
+  <!-- ==================== 4. شاشة عرض المستثمر ==================== -->
   <div id="investor-view-container">
     <header>
       <div>
@@ -377,8 +351,34 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mapbox/togeojson@0.16.0/togeojson.js"></script>
 
+  <!-- مكتبات Firebase السحابية -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <script>
-    // --- الحسابات والصلاحيات ---
+    // =========================================================================
+    // ⚙️ إعدادات Firebase الخاصة بك (استبدل القيم أدناه بمفاتيح مشروعك من Firebase)
+    // =========================================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9vy3BpGfGSbaYcj3kL84Di7_NhUjR8wk",
+  authDomain: "sia-aleppo-map.firebaseapp.com",
+  databaseURL: "https://sia-aleppo-map-default-rtdb.firebaseio.com",
+  projectId: "sia-aleppo-map",
+  storageBucket: "sia-aleppo-map.firebasestorage.app",
+  messagingSenderId: "328704043865",
+  appId: "1:328704043865:web:c80e03bca3b4145b2b7a48",
+  measurementId: "G-CWWCRJ82ZD"
+    };
+
+    // تهيئة السحابة
+    let db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    } catch(err) {
+      console.warn("Firebase لم يتصل بعد، يرجى استبدال firebaseConfig بالإعدادات الصحيحة.");
+    }
+
     const ACCOUNTS = {
       "SIA-ALP-001": { pass: "SIA001Aleppo", role: "admin" },
       "SIA-ALP-002": { pass: "SIA002Aleppo", role: "admin" },
@@ -386,25 +386,15 @@
       "SIA-ALP-004": { pass: "SIA004Aleppo", role: "viewer" }
     };
 
-    const KMZ_STYLE = {
-      color: '#f97316',       
-      fillColor: '#14532d',   
-      weight: 3,
-      fillOpacity: 0.5        
-    };
+    const KMZ_STYLE = { color: '#f97316', fillColor: '#14532d', weight: 3, fillOpacity: 0.5 };
 
     let currentUser = null;
-    let allProperties = JSON.parse(localStorage.getItem('sia_aleppo_properties') || '[]');
+    let allProperties = [];
     let currentGeoJSON = null;
     let tempLayer = null;
 
-    // دوال ترميز وتفكيك السلاسل النصية لإنشاء الروابط المشفرة (UTF-8 Base64)
-    function utf8_to_b64(str) {
-      return window.btoa(unescape(encodeURIComponent(str)));
-    }
-    function b64_to_utf8(str) {
-      return decodeURIComponent(escape(window.atob(str)));
-    }
+    function utf8_to_b64(str) { return window.btoa(unescape(encodeURIComponent(str))); }
+    function b64_to_utf8(str) { return decodeURIComponent(escape(window.atob(str))); }
 
     function getGoogleHybridTile() {
       return L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
@@ -420,13 +410,31 @@
       pInput.type = pInput.type === 'password' ? 'text' : 'password';
     }
 
+    // --- الاستماع المباشر للسحابة (Real-time Listener) ---
+    function initRealtimeSync() {
+      if (!db) return;
+      db.ref('sia_properties').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          allProperties = Object.values(val);
+        } else {
+          allProperties = [];
+        }
+        // تحديث كل الشاشات والخرائط فورياً
+        populateZoneDropdown();
+        renderAdminList();
+        renderViewerMap();
+        renderViewerSearchList();
+      });
+    }
+
     window.addEventListener('DOMContentLoaded', function() {
+      initRealtimeSync();
+
       const urlParams = new URLSearchParams(window.location.search);
       const encodedData = urlParams.get('data');
-      const shareId = urlParams.get('siteId');
 
       if (encodedData) {
-        // المستثمر يفتح الرابط الحامل للبيانات المشفرة بالكامل
         try {
           const jsonStr = b64_to_utf8(encodedData);
           const sharedProperty = JSON.parse(jsonStr);
@@ -436,15 +444,8 @@
           document.getElementById('investor-view-container').style.display = 'flex';
           initInvestorViewFromData(sharedProperty);
         } catch(err) {
-          alert('تعذر فتح الموقع المشارك، الرابط غير مكتمل أو تالف.');
+          alert('تعذر فتح الموقع المشارك.');
         }
-      } else if (shareId) {
-        // دعم الروابط القديمة محلياً
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('app-wrapper').style.display = 'none';
-        document.getElementById('investor-view-container').style.display = 'flex';
-        const p = allProperties.find(item => item.id === shareId);
-        if (p) initInvestorViewFromData(p);
       } else {
         const savedUser = sessionStorage.getItem('sia_logged_user');
         if (savedUser && ACCOUNTS[savedUser]) {
@@ -516,7 +517,6 @@
       }
     }
 
-    // --- تفكيك ملفات KMZ ---
     document.getElementById('field-kmz').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -552,9 +552,10 @@
       const bounds = tempLayer.getBounds();
       const center = bounds.getCenter();
       const centerCoordsStr = `${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}`;
+      const propId = 'prop_' + Date.now();
 
       const propData = {
-        id: 'prop_' + Date.now(),
+        id: propId,
         f1: document.getElementById('field-1').value || 'عقار جديد',
         f2: document.getElementById('field-2').value || '-',
         f3: document.getElementById('field-3').value || '-',
@@ -571,19 +572,23 @@
         geoJSON: currentGeoJSON
       };
 
-      allProperties.push(propData);
-      localStorage.setItem('sia_aleppo_properties', JSON.stringify(allProperties));
+      // الحفظ المباشر في السحابة
+      if (db) {
+        db.ref('sia_properties/' + propId).set(propData, (err) => {
+          if (err) {
+            alert('حدث خطأ أثناء الحفظ السحابي: ' + err.message);
+          } else {
+            alert("تم حفظ العقار ومزامنته مع باقي الأجهزة بنجاح!");
+          }
+        });
+      } else {
+        alert("تنبيه: لم يتم ضبط إعدادات Firebase بعد. تم الحفظ المحلي فقط.");
+      }
 
       for(let i=1; i<=12; i++) document.getElementById('field-' + i).value = '';
       document.getElementById('field-kmz').value = '';
       if (tempLayer) mapEntry.removeLayer(tempLayer);
       currentGeoJSON = null;
-
-      populateZoneDropdown();
-      renderAdminList();
-      renderViewerMap();
-      renderViewerSearchList();
-      alert("تم حفظ العقار بنجاح في قاعدة البيانات وتحديث قائمة المناطق!");
     }
 
     function populateZoneDropdown() {
@@ -608,7 +613,6 @@
       renderViewerSearchList();
     }
 
-    // بناء الرابط المباشر المشفر الذي يحمل كافة بيانات العقار
     function generateShareableUrl(p) {
       const payload = {
         f1: p.f1, f2: p.f2, f3: p.f3, f4: p.f4,
@@ -634,17 +638,14 @@
       if (!p) return;
       const shareUrl = generateShareableUrl(p);
       navigator.clipboard.writeText(shareUrl);
-      alert("تم نسخ رابط العرض المستقل بنجاح!\nيمكنك الآن إرساله للمستثمر ليفتح عنده فوراً.");
+      alert("تم نسخ رابط العرض المستقل بنجاح!");
     }
 
     function deleteProperty(id) {
-      if (confirm("هل أنت تأكد من حذف هذا العقار نهائياً؟")) {
-        allProperties = allProperties.filter(p => p.id !== id);
-        localStorage.setItem('sia_aleppo_properties', JSON.stringify(allProperties));
-        populateZoneDropdown();
-        renderAdminList();
-        renderViewerMap();
-        renderViewerSearchList();
+      if (confirm("هل أنت تأكد من حذف هذا العقار نهائياً؟ سيزال من كافة الأجهزة فوراً.")) {
+        if (db) {
+          db.ref('sia_properties/' + id).remove();
+        }
       }
     }
 
@@ -668,9 +669,9 @@
       c.innerHTML = '';
 
       const filtered = allProperties.filter(p => 
-        p.f1.toLowerCase().includes(query) || 
-        p.f3.toLowerCase().includes(query) || 
-        p.f4.toLowerCase().includes(query)
+        (p.f1 || '').toLowerCase().includes(query) || 
+        (p.f3 || '').toLowerCase().includes(query) || 
+        (p.f4 || '').toLowerCase().includes(query)
       );
 
       filtered.forEach(p => {
@@ -706,9 +707,9 @@
 
       if (query) {
         filtered = filtered.filter(p => 
-          p.f1.toLowerCase().includes(query) || 
-          p.f3.toLowerCase().includes(query) || 
-          p.f4.toLowerCase().includes(query)
+          (p.f1 || '').toLowerCase().includes(query) || 
+          (p.f3 || '').toLowerCase().includes(query) || 
+          (p.f4 || '').toLowerCase().includes(query)
         );
       }
 
@@ -737,7 +738,6 @@
       if (allProperties.length === 0) return;
 
       const selectedZone = document.getElementById('filter-zone')?.value || '';
-      
       const propertiesToDisplay = selectedZone 
         ? allProperties.filter(p => (p.f4 || '').trim() === selectedZone)
         : allProperties;
@@ -758,7 +758,6 @@
       if (bounds.isValid()) mapViewer.fitBounds(bounds);
     }
 
-    // تهيئة شاشة المستثمر وتجهيز الخريطة المنفردة
     function initInvestorViewFromData(p) {
       showDetailsInPanel(p, 'investor-details-panel', true);
 
@@ -794,7 +793,6 @@
             <p style="margin-top: 4px; line-height: 1.4; color: #002623;">${p.f12}</p>
           </div>
 
-          <!-- زر فتح الموقع في Google Maps -->
           ${p.centerCoords ? `
             <a href="${googleMapsUrl}" target="_blank" class="btn-gmaps" style="margin-top:12px;">
               📍 فتح الموقع على Google Maps
